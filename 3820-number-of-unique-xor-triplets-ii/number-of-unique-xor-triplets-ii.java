@@ -1,5 +1,3 @@
-import java.util.*;
-
 class Solution {
     public int uniqueXorTriplets(int[] nums) {
         Set<Integer> pairXor = new HashSet<>();
