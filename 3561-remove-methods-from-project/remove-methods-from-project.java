@@ -1,50 +1,43 @@
 class Solution {
     public List<Integer> remainingMethods(int n, int k, int[][] invocations) {
-        List<List<Integer>> graph = new ArrayList<>();
+        List<Integer>[] g = new ArrayList[n];
+        Arrays.setAll(g,i->new ArrayList<>());
 
-        for (int i = 0; i < n; i++) {
-            graph.add(new ArrayList<>());
+        for(int[] e: invocations) {
+            g[e[0]].add(e[1]);
         }
 
-        for (int[] edge : invocations) {
-            graph.get(edge[0]).add(edge[1]);
-        }
+        boolean[] isSuspicous = new boolean[n];
 
-        boolean[] suspicious = new boolean[n];
-        Queue<Integer> q = new LinkedList<>();
+        dfs(k,g,isSuspicous);
 
-        q.offer(k);
-        suspicious[k] = true;
-
-        while (!q.isEmpty()) {
-            int u = q.poll();
-
-            for (int v : graph.get(u)) {
-                if (!suspicious[v]) {
-                    suspicious[v] = true;
-                    q.offer(v);
-                }
-            }
-        }
-
-        // Check if any outside method calls a suspicious method
-        for (int[] edge : invocations) {
-            if (!suspicious[edge[0]] && suspicious[edge[1]]) {
-                List<Integer> ans = new ArrayList<>();
-                for (int i = 0; i < n; i++) {
+        for(int[] e:invocations) {
+            if(!isSuspicous[e[0]] && isSuspicous[e[1]]) {
+                List<Integer> ans = new ArrayList<>(n);
+                   for(int i=0;i<n;i++) {
                     ans.add(i);
                 }
+
                 return ans;
             }
         }
 
         List<Integer> ans = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            if (!suspicious[i]) {
+        for(int i=0;i<n;i++) {
+            if(!isSuspicous[i]) {
                 ans.add(i);
             }
         }
-
         return ans;
+    }
+
+    private void dfs(int i, List<Integer>[] g,boolean[] isSuspicous) {
+        isSuspicous[i] = true;
+
+        for(int y:g[i]) {
+            if(!isSuspicous[y]) {
+                dfs(y,g,isSuspicous);
+            }
+        } 
     }
 }
