@@ -1,19 +1,33 @@
 class Solution {
     public List<Integer> remainingMethods(int n, int k, int[][] invocations) {
-        List<Integer>[] graph = new ArrayList[n];
+        List<List<Integer>> graph = new ArrayList<>();
+
         for (int i = 0; i < n; i++) {
-            graph[i] = new ArrayList<>();
+            graph.add(new ArrayList<>());
         }
 
         for (int[] edge : invocations) {
-            graph[edge[0]].add(edge[1]);
+            graph.get(edge[0]).add(edge[1]);
         }
 
         boolean[] suspicious = new boolean[n];
-        dfs(k, graph, suspicious);
+        Queue<Integer> q = new LinkedList<>();
 
-        // If any non-suspicious node invokes a suspicious node,
-        // we cannot remove the suspicious group.
+        q.offer(k);
+        suspicious[k] = true;
+
+        while (!q.isEmpty()) {
+            int u = q.poll();
+
+            for (int v : graph.get(u)) {
+                if (!suspicious[v]) {
+                    suspicious[v] = true;
+                    q.offer(v);
+                }
+            }
+        }
+
+        // Check if any outside method calls a suspicious method
         for (int[] edge : invocations) {
             if (!suspicious[edge[0]] && suspicious[edge[1]]) {
                 List<Integer> ans = new ArrayList<>();
@@ -30,15 +44,7 @@ class Solution {
                 ans.add(i);
             }
         }
+
         return ans;
-    }
-
-    private void dfs(int node, List<Integer>[] graph, boolean[] suspicious) {
-        if (suspicious[node]) return;
-
-        suspicious[node] = true;
-        for (int next : graph[node]) {
-            dfs(next, graph, suspicious);
-        }
     }
 }
