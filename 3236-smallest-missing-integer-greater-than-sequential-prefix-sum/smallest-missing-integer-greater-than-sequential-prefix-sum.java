@@ -6,8 +6,6 @@ class Solution {
             sum += nums[i];
             i++;
         }
-
-        // Store all numbers in a HashSet
         Set<Integer> set = new HashSet<>();
         for (int num : nums) {
             set.add(num);
