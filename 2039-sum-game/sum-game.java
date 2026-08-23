@@ -23,9 +23,7 @@ class Solution {
                 rightSum += num.charAt(i) - '0';
             }
         }
-
-        // If number of ? is odd, Alice always wins
-        if ((leftQ + rightQ) % 2 == 1) {
+    if ((leftQ + rightQ) % 2 == 1) {
             return true;
         }
 
