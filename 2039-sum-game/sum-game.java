@@ -27,7 +27,6 @@ class Solution {
             return true;
         }
 
-        // Difference between the two halves
         int diff = leftSum - rightSum;
 
         // Difference in number of ? on both sides
