@@ -1,122 +1,140 @@
-import java.util.*;
-
 class Solution {
-    public int minMoves(String[] classroom, int energy) {
-        int m = classroom.length;
-        int n = classroom[0].length();
 
-        int[][] litter = new int[m][n];
+    class node {
+        int i;
+        int j;
+        int step;
+        int liter;
+        int energy;
 
-        for (int[] row : litter) {
-            Arrays.fill(row, -1);
+        public node(int i, int j, int step, int liter, int energy) {
+            this.i = i;
+            this.j = j;
+            this.step = step;
+            this.liter = liter;
+            this.energy = energy;
         }
+    }
 
-        int sr = 0, sc = 0;
-        int count = 0;
+    public int minMoves(String[] classroom, int e) {
 
-        // Find start and assign each L an index
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                char c = classroom[i].charAt(j);
+        int n = classroom.length;
+        int m = classroom[0].length();
 
-                if (c == 'S') {
-                    sr = i;
-                    sc = j;
-                } else if (c == 'L') {
-                    litter[i][j] = count++;
+        int x = -1;
+        int y = -1;
+
+        int l = 0;
+
+        int[][] id = new int[n][m];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                id[i][j] = -1;
+
+                char ch = classroom[i].charAt(j);
+
+                if (ch == 'S') {
+                    x = i;
+                    y = j;
+                }
+
+                if (ch == 'L') {
+                    id[i][j] = l;
+                    l++;
                 }
             }
         }
 
-        if (count == 0) {
-            return 0;
+        int total = 1 << l;
+
+        int[][][] visited = new int[n][m][total];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                for (int k = 0; k < total; k++) {
+                    visited[i][j][k] = -1;
+                }
+            }
         }
 
-        int target = (1 << count) - 1;
+        Queue<node> pq = new LinkedList<>();
 
-        // visited[row][col][energy][mask]
-        boolean[][][][] visited =
-            new boolean[m][n][energy + 1][1 << count];
+        pq.add(new node(x, y, 0, 0, e));
 
-        Queue<int[]> q = new LinkedList<>();
+        visited[x][y][0] = e;
 
-        // row, col, remaining energy, mask
-        q.offer(new int[]{sr, sc, energy, 0});
-        visited[sr][sc][energy][0] = true;
+        int[] dx = {-1, 1, 0, 0};
+        int[] dy = {0, 0, -1, 1};
 
-        int[] dr = {-1, 1, 0, 0};
-        int[] dc = {0, 0, -1, 1};
+        while (pq.size() > 0) {
 
-        int moves = 0;
+            node abc = pq.poll();
 
-        while (!q.isEmpty()) {
+            int i = abc.i;
+            int j = abc.j;
+            int step = abc.step;
+            int liter = abc.liter;
+            int energy = abc.energy;
 
-            int size = q.size();
+            if (classroom[i].charAt(j) == 'L') {
+                int idd = id[i][j];
 
-            while (size-- > 0) {
+                liter = liter | (1 << idd);
+            }
 
-                int[] cur = q.poll();
+            if (liter == total - 1) {
+                return step;
+            }
 
-                int r = cur[0];
-                int c = cur[1];
-                int e = cur[2];
-                int mask = cur[3];
+            if (classroom[i].charAt(j) == 'R') {
+                energy = e;
+            }
 
-                if (mask == target) {
-                    return moves;
-                }
+            if (energy == 0) {
+                continue;
+            }
 
-                // No energy means we cannot make another move
-                if (e == 0) {
+            for (int d = 0; d < 4; d++) {
+
+                int ni = i + dx[d];
+                int nj = j + dy[d];
+
+                if (ni < 0 || ni >= n || nj < 0 || nj >= m) {
                     continue;
                 }
 
-                for (int d = 0; d < 4; d++) {
-
-                    int nr = r + dr[d];
-                    int nc = c + dc[d];
-
-                    if (nr < 0 || nr >= m ||
-                        nc < 0 || nc >= n) {
-                        continue;
-                    }
-
-                    char cell = classroom[nr].charAt(nc);
-
-                    // Obstacle
-                    if (cell == 'X') {
-                        continue;
-                    }
-
-                    int newEnergy = e - 1;
-                    int newMask = mask;
-
-                    // Collect litter
-                    if (cell == 'L') {
-                        int id = litter[nr][nc];
-                        newMask |= (1 << id);
-                    }
-
-                    // Reset energy
-                    if (cell == 'R') {
-                        newEnergy = energy;
-                    }
-
-                    if (!visited[nr][nc][newEnergy][newMask]) {
-
-                        visited[nr][nc][newEnergy][newMask] = true;
-
-                        q.offer(new int[]{
-                            nr,
-                            nc,
-                            newEnergy,
-                            newMask
-                        });
-                    }
+                if (classroom[ni].charAt(nj) == 'X') {
+                    continue;
                 }
-            }
 
-            moves++;
+                int newEnergy = energy - 1;
+                int newLiter = liter;
+
+                if (classroom[ni].charAt(nj) == 'L') {
+                    int idd = id[ni][nj];
+
+                    newLiter = newLiter | (1 << idd);
+                }
+
+                if (classroom[ni].charAt(nj) == 'R') {
+                    newEnergy = e;
+                }
+
+                if (visited[ni][nj][newLiter] >= newEnergy) {
+                    continue;
+                }
+
+                visited[ni][nj][newLiter] = newEnergy;
+
+                pq.add(new node(
+                        ni,
+                        nj,
+                        step + 1,
+                        newLiter,
+                        newEnergy
+                ));
+            }
         }
 
         return -1;
