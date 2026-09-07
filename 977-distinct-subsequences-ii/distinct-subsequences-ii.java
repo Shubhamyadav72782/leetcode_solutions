@@ -1,28 +1,22 @@
 class Solution {
     public int distinctSubseqII(String s) {
-        final int mod = 1_000_000_007;
+        final int MOD = 1_000_000_007;
 
         long[] dp = new long[26];
+        long total = 0;
 
         for (char ch : s.toCharArray()) {
             int index = ch - 'a';
 
-            long total = 1; // current character itself
+            // New subsequences ending with current character
+            long add = (total + 1) % MOD;
 
-            for (long count : dp) {
-                total = (total + count) % mod;
-            }
+            // Replace old subsequences ending with this character
+            total = (total - dp[index] + add + MOD) % MOD;
 
-            // All subsequences ending with this character
-            dp[index] = total;
+            dp[index] = add;
         }
 
-        long answer = 0;
-
-        for (long count : dp) {
-            answer = (answer + count) % mod;
-        }
-
-        return (int) answer;
+        return (int) total;
     }
 }
