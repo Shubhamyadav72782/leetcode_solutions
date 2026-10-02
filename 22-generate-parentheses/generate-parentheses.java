@@ -10,7 +10,7 @@ class Solution {
     private void backtrack(List<String> result, StringBuilder current,
                             int open, int close, int n) {
 
-        // Base case
+    
         if (current.length() == 2 * n) {
             result.add(current.toString());
             return;
